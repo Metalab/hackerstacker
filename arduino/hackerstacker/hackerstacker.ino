@@ -247,10 +247,29 @@ int current_position=0;
 
 
 
+// for testing
+//const int linedelay[] = {
+//200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200
+//  };
 
-//how fast does each line move
+
+
+/*
+
+//normal
 const int linedelay[] = {
   40, 45, 45, 45, 50, 55,
+  60, 65, 70, 75, 80, 85,
+  90, 95, 100, 105, 110, 115,
+  120
+  };
+*/
+
+
+
+//insane
+const int linedelay[] = {
+  10, 15, 25, 30, 40, 50,
   60, 65, 70, 75, 80, 85,
   90, 95, 100, 105, 110, 115,
   120
@@ -258,11 +277,6 @@ const int linedelay[] = {
 
 
 
-
-// for testing
-//const int linedelay[] = {
-//200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200
-//  };
 
 
 
@@ -325,6 +339,8 @@ int blockposition=0;
 int moving_direction=1;
 int force_blocksize=4;
 
+
+int score=0;
 
 
 int current_row_setpixels[] = {
@@ -457,6 +473,10 @@ void run_game()
         Serial.print(current_row_setpixels[i]);
         Serial.println(" is in row! :)");
         ok=1;
+        
+        //incrment score - no! count pixels in the end
+        //score++;
+        
        }
 
      
@@ -725,6 +745,9 @@ void reset_background()
 // this happens if you make it to the top!
 void win_game()
 {
+  
+   show_highscore();
+  
    finish_game();
    flash(1);  
    
@@ -739,6 +762,9 @@ void win_game()
 // this happens when you lose :(
 void lose_game()
 {
+  
+  show_highscore();
+  
    flash(3); 
    finish_game();  
 }
@@ -763,6 +789,10 @@ void finish_game()
  
  // no press ..
  button_pressed=0; 
+ 
+ 
+ score=0;
+ 
  
  // fill buffers with emptyness
  for(int i=0;i<4;i++)

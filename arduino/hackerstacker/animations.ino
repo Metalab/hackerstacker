@@ -272,7 +272,74 @@ void show_sunshine_anim()
 
 
 
+void show_highscore()
+{
+  
 
+  button_pressed=0;
+  score=0;
+ 
+  
+  // get score
+  for (int i=0;i<128;i++)
+  {
+   if(matrix_background[i]>0)  score++;   
+  }
+  
+  
+  uint32_t starttime = millis();
+  
+  // display score
+  for (int  i=0; i<1000;i++)
+  {
+  
+    delay(10);
+    if(button_pressed) 
+    {
+      if((millis()-starttime)>200)
+         break;
+    }
+
+  }
+  
+  
+   button_pressed=0;
+
+  
+  starttime = millis();
+    x=8;
+  
+  
+  
+  for (int  i=0; i<100;i++)
+  {
+  
+    
+    if(button_pressed) 
+    {
+      if((millis()-starttime)>200)
+         break;
+    }
+   button_pressed=0;
+ 
+  
+  
+  
+    
+   matrix.fillScreen(0); 
+  matrix.setCursor(x, 4);
+  matrix.setTextColor(matrix.Color(0,255,0));
+  matrix.print(score);
+  
+  matrix.show();
+  delay(90);
+  
+    if(--x < -14) {
+    x = matrix.width(); 
+  }
+  
+  }
+}
 
 
 
