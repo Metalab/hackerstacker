@@ -10,36 +10,48 @@
 
   
    
-    int on=80;
-    int off=30;
+    const int on=80;
+    const int off=30;
+    
+    const int lsound =200;
+    const int hsound =900;    
     
    for (int i=0;i<rounds;i++)
    {
+     
+    tone(BUZZERPIN,random(lsound,hsound),on);       
     matrix.fillScreen(matrix.Color(255,0,0));
     delay(on);
+
+    tone(BUZZERPIN,random(lsound,hsound),off); 
     matrix.show();
     matrix.fillScreen(0);
     delay(off);
     matrix.show();    
     
-    
+    tone(BUZZERPIN,random(lsound,hsound),on); 
     matrix.fillScreen(matrix.Color(0,255,0));
     delay(on);
+    tone(BUZZERPIN,random(lsound,hsound),off); 
     matrix.show();
     matrix.fillScreen(0);
     delay(off);
     matrix.show();  
     
+
+    tone(BUZZERPIN,random(lsound,hsound),on); 
     matrix.fillScreen(matrix.Color(0,0,255));
     delay(on);
+     tone(BUZZERPIN,random(lsound,hsound),off);    
     matrix.show();
     matrix.fillScreen(0);
     delay(off);
     matrix.show();  
       
-    
+    tone(BUZZERPIN,random(lsound,hsound),on);     
     matrix.fillScreen(matrix.Color(255,255,255));
     delay(on);
+    tone(BUZZERPIN,random(lsound,hsound),off);     
     matrix.show();
     matrix.fillScreen(0);
     delay(off);
@@ -85,6 +97,8 @@ void display_load_animation()
      matrix.drawPixel(j, i, col);
      matrix.show(); 
     }  
+    tone(BUZZERPIN,50*(i+1),10);
+    delay(10);  
   } 
   
   
@@ -100,6 +114,10 @@ void display_load_animation()
      matrix.drawPixel(i, j, col);
      matrix.show(); 
     }  
+    tone(BUZZERPIN,80*(i+1),10);
+    delay(10);
+   
+    
   } 
   
   
@@ -115,6 +133,7 @@ void display_load_animation()
      matrix.drawPixel(j, i, 0);
      matrix.show(); 
     }  
+    tone(BUZZERPIN,50*(i+1),10);
     delay(10);
   } 
  

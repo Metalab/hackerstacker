@@ -429,8 +429,10 @@ void run_game()
  {
    // nothing happens on bottom row
    if(current_row==15)
-     return;
-   
+   {
+    for(int j=0;j<4;j++)
+      last_row_setpixels[j]  = current_row_setpixels[j];        
+   }
    
    Serial.print("---- ROW ");  
    Serial.println(current_row);
@@ -616,7 +618,7 @@ void draw_blockline(int row)
     // reset direction
     if(blockposition>(8-blocksize-1))
     {
-      tone(BUZZERPIN,523,100); 
+      tone(BUZZERPIN,500 - (10*row),50); 
       moving_direction=0;
     }
   } 
@@ -637,7 +639,7 @@ void draw_blockline(int row)
    // reset direction
    if(blockposition==0)
    {
-    tone(BUZZERPIN,784,100);  
+    tone(BUZZERPIN,550 - (10*row),50);  
     moving_direction=1;
    }
    
