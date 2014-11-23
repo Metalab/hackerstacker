@@ -35,6 +35,10 @@ GPL 2.0,  thrown together by overflo from hackerspaceshop.com / metalab.at
 #define LED_PIN 9
 
 
+// the led on the button
+#define BUZZERPIN 16
+
+
 
 // can change not static..
 int brightness = 0;    // how bright the LED is
@@ -117,8 +121,7 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 1, 2, PIN,
 
 void setup() {
 
-  
-  
+
   
   
   Serial.println("GO!");
@@ -129,8 +132,28 @@ void setup() {
   
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);    
+  pinMode(BUZZERPIN,OUTPUT);
+ 
+  digitalWrite(BUZZERPIN,LOW);  
+    
+    
     
   attachInterrupt(1,buttonpressed_LOW_isr,FALLING);
+  
+  
+  
+  
+  
+  
+  
+  //remove this in PCB design..
+  // should vonnect to vcc ..  
+  pinMode(10,OUTPUT);
+  digitalWrite(10,HIGH);
+
+  
+  
+  
 }
 
 
@@ -173,9 +196,9 @@ void loop() {
 
 
   
+  
   // fade led wait for interruptroutine to set waitforactivation to zero
-  
-  
+   
   while(waitforactivation)  show_startup_animation(); 
   button_pressed=0; 
   
@@ -513,8 +536,12 @@ uint16_t matrix_background[128]={
 // shows animation of pixel that drops out..
 void kill_pixel(int row, int col)
 {
+  
+  
+  
   for (int i=0;i<3;i++)
   {
+    tone(BUZZERPIN,700+(i*10),50);
     matrix.drawPixel(col, row, matrix.Color(255,255,255));
     matrix.show();
     delay(50); 
@@ -528,7 +555,7 @@ void kill_pixel(int row, int col)
   {
   
     if(row+i >15) return;
-  
+     tone(BUZZERPIN,800+(i*10),50);
      matrix.drawPixel(col, row+i, matrix.Color(255,255,255));
      matrix.show();
      delay(50); 
@@ -588,8 +615,10 @@ void draw_blockline(int row)
   
     // reset direction
     if(blockposition>(8-blocksize-1))
+    {
+      tone(BUZZERPIN,523,100); 
       moving_direction=0;
- 
+    }
   } 
   else
   {
@@ -603,11 +632,15 @@ void draw_blockline(int row)
 
    }
    
-  // decrement position
-  blockposition--;
-  // reset direction
-  if(blockposition==0)
+   // decrement position
+   blockposition--;
+   // reset direction
+   if(blockposition==0)
+   {
+    tone(BUZZERPIN,784,100);  
     moving_direction=1;
+   }
+   
    
   }  
       

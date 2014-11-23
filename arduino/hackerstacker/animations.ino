@@ -58,26 +58,56 @@
   
   
   
-  
+const uint16_t  colortable[] ={
+ matrix.Color(255,0,0),
+ matrix.Color(255,255,0),
+ matrix.Color(255,0,255),
+ matrix.Color(0,255,255),
+ matrix.Color(0,255,0),
+ matrix.Color(0,0,255),
+ matrix.Color(255,255,255),
+
+};
 
 
 void display_load_animation()
 {
   
+  
+  //up - down
   for (int i=0;i<16;i++)
   {
   
-    uint16_t col = matrix.Color(random(10,255),random(10,255),random(10,255));
+    uint16_t col = colortable[random(0,7)];
   
     for (int j=0;j<8;j++)
     {
      matrix.drawPixel(j, i, col);
      matrix.show(); 
     }  
-    delay(10);
   } 
   
   
+  
+  //left right
+  for (int i=0;i<8;i++)
+  {
+  
+    uint16_t col = colortable[random(0,7)];
+  
+    for (int j=0;j<16;j++)
+    {
+     matrix.drawPixel(i, j, col);
+     matrix.show(); 
+    }  
+  } 
+  
+  
+  
+  
+  
+  
+  //sweep.
   for (int i=0;i<16;i++)
   {
     for (int j=0;j<8;j++)
@@ -85,7 +115,7 @@ void display_load_animation()
      matrix.drawPixel(j, i, 0);
      matrix.show(); 
     }  
-    delay(20);
+    delay(10);
   } 
  
 }
@@ -94,10 +124,13 @@ void display_load_animation()
 
 
 
-
   
 void   show_startup_animation()
 {
+
+
+
+
   // FADE led on button
   analogWrite(LED_PIN, brightness);    
 
@@ -114,19 +147,21 @@ void   show_startup_animation()
 
   matrix.fillScreen(0);
   matrix.setCursor(x, 1);
-  matrix.setTextColor(matrix.Color(255,255,0));
+  matrix.setTextColor(matrix.Color(0,0,255));
   matrix.print(F(" Hacker"));
   
   
   
   if(--x < -44) {
     x = matrix.width();
+      
+    
   }
   
   
   
   matrix.setCursor(x, 9);
-  matrix.setTextColor(matrix.Color(0,255,255));
+  matrix.setTextColor(matrix.Color(0,255,0));
   matrix.print(F("Stacker"));
   
   matrix.show();
@@ -146,7 +181,7 @@ void   show_startup_animation()
 
 const unsigned int herzilein[] = {
   
-  0,  0,  0,  0,  0,  0,  0,  0,
+
   0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  1,  1,  0,  1,  1,  0,
   0,  1,  0,  0,  1,  0,  0,  1,
@@ -162,6 +197,7 @@ const unsigned int herzilein[] = {
   0,  1,  0,  0,  0,  1,  0,  0,
   0,  0,  1,  0,  1,  0,  0,  0,
   0,  0,  0,  1,  0,  0,  0,  0,
+  0,  0,  0,  0,  0,  0,  0,  0,
   
  
 };
@@ -181,6 +217,8 @@ void show_sunshine_anim()
         for (int i=0; i < 16; i=i+3) {
           for (int col=0;col<8;col++)
           {
+            
+              
                 matrix.drawPixel(col, i+q, Wheel( (i+j) % 255));
           }
             
@@ -201,7 +239,8 @@ void show_sunshine_anim()
       }    
     }
     
-    
+    if(button_pressed) return;
+            
         matrix.show();
        
     
