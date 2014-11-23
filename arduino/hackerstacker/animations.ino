@@ -272,7 +272,7 @@ void show_sunshine_anim()
 
 
 
-void show_highscore()
+void show_score()
 {
   
 
@@ -280,38 +280,40 @@ void show_highscore()
   score=0;
  
   
-  // get score
+  // get score by counting pixels available on background..
   for (int i=0;i<128;i++)
   {
    if(matrix_background[i]>0)  score++;   
   }
   
   
-  uint32_t starttime = millis();
   
-  // display score
-  for (int  i=0; i<1000;i++)
+ // uint32_t starttime = millis();
+  
+  // display tower for 6 seconds 
+  for (int  i=0; i<600;i++)
   {
   
     delay(10);
     if(button_pressed) 
     {
-      if((millis()-starttime)>200)
+   //   if((millis()-starttime)>200)
          break;
     }
 
   }
   
-  
-   button_pressed=0;
+  button_pressed=0;
 
   
-  starttime = millis();
-    x=8;
+  uint32_t starttime = millis();
+  x=8;
   
   
   
-  for (int  i=0; i<100;i++)
+  
+  // display score
+  for (int  i=0; i<1000;i++)
   {
   
     
@@ -325,16 +327,31 @@ void show_highscore()
   
   
   
+  // display score strig
+  int totalscore = (score+rowscore);
+  
+  String scorestring ="";
+  scorestring = scorestring + score + "+" + rowscore+ "=" + totalscore;
+  
     
-   matrix.fillScreen(0); 
+  matrix.fillScreen(0); 
   matrix.setCursor(x, 4);
   matrix.setTextColor(matrix.Color(0,255,0));
-  matrix.print(score);
+  matrix.print(scorestring );
   
   matrix.show();
   delay(90);
   
-    if(--x < -14) {
+ 
+ 
+ // Serial.println("Scorelen: ");  
+ // Serial.println(scorestring.length());
+  
+  int strlen =  scorestring.length();
+  
+  // one character is average 7 wide ..
+  if(--x < int ((strlen*7)*(-1))  ) 
+  {
     x = matrix.width(); 
   }
   

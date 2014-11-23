@@ -341,6 +341,7 @@ int force_blocksize=4;
 
 
 int score=0;
+int rowscore=0;
 
 
 int current_row_setpixels[] = {
@@ -416,7 +417,7 @@ void run_game()
     if(current_row==-1)
     {
      win_game();
-     current_row=15;
+     //current_row=15;
     }   
     
     button_pressed=0;
@@ -443,6 +444,11 @@ void run_game()
  // display animation
  void  close_current_row(int current_row)
  {
+   
+   
+
+   
+   
    // nothing happens on bottom row
    if(current_row==15)
    {
@@ -502,6 +508,13 @@ void run_game()
     } // !ok :(
      
    } // for i++  ..  
+  
+  
+   rowscore = rowscore + (16-current_row);
+   
+   Serial.print("new rowscore: ");
+   Serial.println(rowscore);
+  
   
   
   Serial.println("------");
@@ -746,7 +759,7 @@ void reset_background()
 void win_game()
 {
   
-   show_highscore();
+   show_score();
   
    finish_game();
    flash(1);  
@@ -763,7 +776,7 @@ void win_game()
 void lose_game()
 {
   
-  show_highscore();
+  show_score();
   
    flash(3); 
    finish_game();  
@@ -792,6 +805,7 @@ void finish_game()
  
  
  score=0;
+ rowscore=0;
  
  
  // fill buffers with emptyness
