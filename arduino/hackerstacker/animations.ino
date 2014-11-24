@@ -8,7 +8,6 @@
   {
   
 
-  
    
     const int on=80;
     const int off=30;
@@ -18,7 +17,12 @@
     
    for (int i=0;i<rounds;i++)
    {
-     
+    if(button_pressed)
+    {
+      button_pressed=0;
+      return;
+    }
+    
     tone(BUZZERPIN,random(lsound,hsound),on);       
     matrix.fillScreen(matrix.Color(255,0,0));
     delay(on);
@@ -85,6 +89,7 @@ const uint16_t  colortable[] ={
 void display_load_animation()
 {
   
+  matrix.fillScreen(0);
   
   //up - down
   for (int i=0;i<16;i++)
@@ -94,6 +99,14 @@ void display_load_animation()
   
     for (int j=0;j<8;j++)
     {
+      
+     if(button_pressed)
+     {
+      button_pressed=0;
+      return;
+     } 
+      
+      
      matrix.drawPixel(j, i, col);
      matrix.show(); 
     }  
@@ -111,6 +124,12 @@ void display_load_animation()
   
     for (int j=0;j<16;j++)
     {
+     if(button_pressed)
+     {
+      button_pressed=0;
+      return;
+     } 
+     
      matrix.drawPixel(i, j, col);
      matrix.show(); 
     }  
@@ -130,6 +149,13 @@ void display_load_animation()
   {
     for (int j=0;j<8;j++)
     {
+      
+     if(button_pressed)
+     {
+      button_pressed=0;
+      return;
+     }  
+      
      matrix.drawPixel(j, i, 0);
      matrix.show(); 
     }  
@@ -143,11 +169,27 @@ void display_load_animation()
 
 
 
+
+
+int x    = 8;  
   
 void   show_startup_animation()
 {
+  
+  
+  
+  //while(digitalRead(BUTTON_PIN)){} // debounce button
+  //delay(100);
+  //button_pressed=0;
 
 
+  
+  
+  
+  int counter=0;
+  
+  while(!button_pressed)
+  {
 
 
   // FADE led on button
@@ -173,9 +215,16 @@ void   show_startup_animation()
   
   if(--x < -44) {
     x = matrix.width();
-      
-    
-  }
+    counter++;
+  }    
+  
+  
+  if(counter >=5)
+  {
+   flash(1);
+   show_highscore(53);
+   counter=0;
+  }  
   
   
   
@@ -186,7 +235,7 @@ void   show_startup_animation()
   matrix.show();
   delay(60);
 
-
+  }
     
    return; 
   }
@@ -276,90 +325,284 @@ void show_score()
 {
   
 
-  button_pressed=0;
-  score=0;
- 
   
-  // get score by counting pixels available on background..
-  for (int i=0;i<128;i++)
-  {
-   if(matrix_background[i]>0)  score++;   
-  }
+  set_pxl_score();
   
   
-  
- // uint32_t starttime = millis();
-  
-  // display tower for 6 seconds 
-  for (int  i=0; i<600;i++)
+  button_pressed=0;  
+  // display tower for 2 seconds .. may be interrupted any time 
+  for (int  i=0; i<200;i++)
   {
   
     delay(10);
     if(button_pressed) 
     {
-   //   if((millis()-starttime)>200)
+         button_pressed=0;
          break;
     }
 
-  }
-  
+  }  
   button_pressed=0;
+  
+ 
+  
+  
 
   
-  uint32_t starttime = millis();
-  x=8;
-  
-  
-  
-  
-  // display score
-  for (int  i=0; i<1000;i++)
-  {
-  
-    
-    if(button_pressed) 
-    {
-      if((millis()-starttime)>200)
-         break;
-    }
-   button_pressed=0;
- 
   
   
   
   // display score strig
   int totalscore = (score+rowscore);
-  
   String scorestring ="";
   scorestring = scorestring + score + "+" + rowscore+ "=" + totalscore;
   
-    
-  matrix.fillScreen(0); 
-  matrix.setCursor(x, 4);
-  matrix.setTextColor(matrix.Color(0,255,0));
-  matrix.print(scorestring );
+  show_one_line(scorestring,matrix.Color(0,255,0),85);
   
-  matrix.show();
-  delay(90);
-  
- 
- 
- // Serial.println("Scorelen: ");  
- // Serial.println(scorestring.length());
-  
-  int strlen =  scorestring.length();
-  
-  // one character is average 7 wide ..
-  if(--x < int ((strlen*7)*(-1))  ) 
-  {
-    x = matrix.width(); 
-  }
-  
-  }
+
 }
 
 
 
+void show_highscore(int timer)
+{
+  
+  
+    String scorestring ="Highscore";
+    show_one_line(scorestring,matrix.Color(255,255,255),60);  
+    
+    
+    scorestring = get_highscore_name() + ":" + get_highscore() ; 
+    show_one_line(scorestring,matrix.Color(255,255,0),timer); 
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+void show_one_line(String str, uint16_t color, int timeout)
+{
+  
+
+   int strlen =  str.length();  
+  
+   uint32_t starttime = millis();
+   int x=8;
+  
+  
+  
+   // display string for given time..
+   for (int  i=0; i<timeout;i++)
+   {
+    if(button_pressed) 
+    {
+      if((millis()-starttime)>200)
+         break;
+    }
+    button_pressed=0; 
+  
+
+    matrix.fillScreen(0); 
+    matrix.setCursor(x, 4);
+    matrix.setTextColor(color);
+    matrix.print(str);
+    matrix.show();
+    delay(100);
+  
+  
+    // one character is average 7 wide .
+    if(--x < int ((strlen*7)*(-1))  ) 
+     x = matrix.width(); 
+     
+   } // for .. timeout
+   
+}
+
+
+
+
+
+
+
+
+
+
+
+int check_highscore()
+{
+  
+    set_pxl_score();
+  
+   int totalscore = (score+rowscore);
+   
+   // if we got no new highscore we return in shame :(
+   if(get_highscore() >  totalscore) return 0;
+   
+   
+   
+   // show NEW HIGHSCORE in one scroll .. 
+   String str = "NEW HIGHSCORE:    ";
+   Serial.println(totalscore);
+   show_one_line(str, matrix.Color(0,0,255), 90);
+   
+   
+   
+   
+   
+   
+   // then get data to insert new entry;
+   
+   //set input chars to space by default
+   char a,b,c,d =0x20; 
+   
+   char currentchar=0xFFFFFFDA;
+   
+   int charcount=0;
+   int char_input_done=0;
+   
+   // debounce  :/
+   delay(100);
+   button_pressed=0;
+    
+   uint32_t lastinput = 0;
+   
+   while(!char_input_done)
+   {
+     
+     
+     //blink current character blue and white
+     matrix.fillScreen(0); 
+     matrix.setCursor(2, 5);
+     matrix.setTextColor(matrix.Color(0,0,255));
+     matrix.print(currentchar);
+     matrix.show();
+     delay(200);
+     matrix.fillScreen(0); 
+     matrix.setCursor(2, 5);
+     matrix.setTextColor(matrix.Color(127,127,127));
+     matrix.print(currentchar);
+     matrix.show();
+     delay(50);    
+     
+     
+     
+     
+     // ah the button was presse.. update the displayed char
+     if(button_pressed>0)
+     {
+       // debaouce the button ... :/
+       delay(80);
+       button_pressed=0; 
+       
+       // increment character
+       currentchar++;
+       
+      // 0x20 = " "
+      // 0xFFFFFFDA  = BLOCK
+      if(currentchar >=  0xFFFFFFDA ) currentchar='A'; // 65 DEC  (90 =Z)
+      if(currentchar>'Z') currentchar=0xFFFFFFDA; // set to monolith
+       
+       Serial.print(currentchar);
+       Serial.print(" ");
+       Serial.println(currentchar,HEX); 
+     
+       lastinput = millis();
+        
+     }
+     
+     
+     
+     // no timeout before first modification of character .. after first change we save it 1.5 secs later.
+     if(lastinput>0 && ((millis()-lastinput) > 1500) )
+     {
+
+       
+      // fadeout current character      
+      for(int i=255;i>0;i--)
+      { 
+       matrix.fillScreen(0); 
+       matrix.setCursor(2, 5);
+       matrix.setTextColor(matrix.Color(i,i,i));
+       matrix.print(currentchar);
+       matrix.show();       
+      }
+      
+      
+      // to display something if we enter a space we use a monolith, but we rather save a space in the eeprom
+      if(currentchar == 0xFFFFFFDA)
+      {
+        currentchar= 0x20; // replace block with space
+        char_input_done=1;  //assume we are done if there is a space before the 4 chars..
+      }
+      
+      
+      
+      // update the 4 parameters to save in eeprom later
+      if(charcount==0) a = currentchar; 
+      if(charcount==1) b = currentchar;
+      if(charcount==2) c = currentchar; 
+      
+      // last char .. we are outta here.
+      if(charcount==3)
+      { 
+       d = currentchar; 
+       char_input_done=1;
+      }
+    
+      Serial.print("Saving char:" );
+      Serial.println(currentchar);
+           
+    
+    
+      
+      charcount++;
+      
+      // next char will be A again
+      currentchar= 0xFFFFFFDA; 
+      
+      // reset the timer for next char   
+      lastinput = 0;
+      delay(100);
+      
+      
+     } // if lastinput longer 5 sec ..
+    
+    } // while input not done ..
+   
+    // input done? great!
+    
+    //delay(100);
+    save_highscore_name (a,b,c,d);
+    save_highscore (totalscore);   
+ 
+ 
+   // we set a new highscore .. show it!
+   return 1; 
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// color helpers
 
 
 
@@ -377,6 +620,7 @@ uint16_t Wheel(byte WheelPos) {
    return matrix.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
 }
+
 
 
 

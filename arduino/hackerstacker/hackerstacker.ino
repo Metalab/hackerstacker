@@ -120,8 +120,13 @@ Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 1, 2, PIN,
 
 
 void setup() {
+  
+  
+  
+  Serial.begin(115200);
 
-
+  
+  
   
   
   Serial.println("GO!");
@@ -152,6 +157,9 @@ void setup() {
   digitalWrite(10,HIGH);
 
   
+  
+  // fill eeprom ..
+  init_eeprom_on_firstrun();
   
   
 }
@@ -188,8 +196,6 @@ void buttonpressed_LOW_isr()
 
 
 
-int x    = matrix.width();
-int pass = 0;
 
 
 void loop() {
@@ -200,15 +206,17 @@ void loop() {
   // fade led wait for interruptroutine to set waitforactivation to zero
    
   while(waitforactivation)  show_startup_animation(); 
-  button_pressed=0; 
-  
-  
-  display_load_animation();
+ 
+ 
+ 
+   // button_pressed=0; 
+   display_load_animation();
 
   
    
 
-
+   //delay(100);
+   button_pressed=0;
    run_game();  
     
   }
@@ -356,9 +364,11 @@ int last_row_setpixels[] = {
 
 void run_game()
 {
-
+  // needed so the startanimation wont show from run_game() .. kinda dirty
   while(!waitforactivation)
   {
+  
+    while(!digitalRead(BUTTON_PIN)){} // debounce bitch
     button_pressed=0;
     
     // how big is the block in this row  by default?
@@ -372,29 +382,18 @@ void run_game()
       blocksize=force_blocksize;
     
     if(blocksize<force_blocksize)
-     force_blocksize=blocksize;
-    
-    
-    
+     force_blocksize=blocksize;  
     
     //draw backgound
     draw_background();
     
     //draw current line
     draw_blockline(current_row);
-
     
     //display current frame
     matrix.show();
 
-
     delay(linedelay[current_row]);
-    
-    
-   
-    
-    
-    
     
     if(button_pressed)
     {
@@ -402,27 +401,27 @@ void run_game()
       // Serial.println("Button pressed");
       // we wait till button is released again
       while(!digitalRead(BUTTON_PIN)){}
-       delay(50);
+      
+      delay(50);
       analogWrite(LED_PIN, 0);  
 
-    // display animation
-    close_current_row(current_row);
+      // display animation
+      close_current_row(current_row);
     
-    //setup background
-    setup_backgound(current_row);
+      //setup background
+      setup_backgound(current_row);
     
-    current_row--;       
+      current_row--;       
 
-     //  we reached the top ..
-    if(current_row==-1)
-    {
-     win_game();
-     //current_row=15;
-    }   
-    
-    button_pressed=0;
-    
-    
+      //  we reached the top ..
+      if(current_row==-1)
+      {
+        rowscore = rowscore + 100; // last row special bonus! 
+        win_game();
+        //current_row=15;
+      }
+      
+      button_pressed=0; 
     } // if button pressed
     
    } // while
@@ -481,7 +480,7 @@ void run_game()
         ok=1;
         
         //incrment score - no! count pixels in the end
-        //score++;
+        score++;
         
        }
 
@@ -514,9 +513,6 @@ void run_game()
    
    Serial.print("new rowscore: ");
    Serial.println(rowscore);
-  
-  
-  
   Serial.println("------");
  }
 
@@ -635,6 +631,8 @@ void kill_pixel(int row, int col)
 // this function is responsible for creating each line segment that moves left right and back ..
 void draw_blockline(int row)
 { 
+  
+
   
   // moving L to R
   if(moving_direction)
@@ -759,8 +757,9 @@ void reset_background()
 void win_game()
 {
   
-   show_score();
-  
+   if(!check_highscore()) show_score();
+   show_highscore(500);
+ 
    finish_game();
    flash(1);  
    
@@ -775,9 +774,10 @@ void win_game()
 // this happens when you lose :(
 void lose_game()
 {
-  
-  show_score();
-  
+   if(!check_highscore()) show_score();
+   
+   show_highscore(500);
+   
    flash(3); 
    finish_game();  
 }
@@ -803,21 +803,37 @@ void finish_game()
  // no press ..
  button_pressed=0; 
  
+  // reset block pos for net game 
+  blockposition=0;
+
+  // R-L again ..
+  moving_direction=1;  
+
+  score=0;
+  rowscore=0;
  
- score=0;
- rowscore=0;
- 
- 
- // fill buffers with emptyness
- for(int i=0;i<4;i++)
- {
+  // fill buffers with emptyness
+  for(int i=0;i<4;i++)
+  {
     last_row_setpixels[i]   = 99;
     current_row_setpixels[i]= 99;
- }
+  }
  
   // display anim
   waitforactivation=1;
   
+}
+
+
+void set_pxl_score()
+{
+   score=0;
+  
+  // get score by counting pixels available on background..
+  for (int i=0;i<128;i++)
+  {
+   if(matrix_background[i]>0)  score++;   
+  }   
 }
 
 
