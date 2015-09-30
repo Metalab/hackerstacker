@@ -13,8 +13,10 @@ int init_eeprom_on_firstrun()
     save_highscore_name('O','V','R','F');
     save_highscore(133);    
     
-    // magic byte at p[osition 100 is set to 1 .. now we will never again do anything in the function run_for_the_first_time()
+    // magic byte at position 100 is set to 1 .. now we will never again do anything in the function run_for_the_first_time()
     EEPROM.write(100, 1); 
+
+    
 }
 
 
@@ -26,8 +28,8 @@ void save_highscore(int score)
 {
 
   
-//  Serial.print("Called for writing with eeprom: ");
-//  Serial.println(score);
+  Serial.print("Called for writing with eeprom: ");
+  Serial.println(score);
   
   
   byte sb1 = score;

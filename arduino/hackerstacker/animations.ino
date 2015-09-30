@@ -471,6 +471,9 @@ void show_one_line(String str, uint16_t color, int timeout)
 
 
 
+
+
+
 int check_highscore()
 {
   
@@ -483,12 +486,13 @@ int check_highscore()
    
    
    
-   //TODO needs to be removed
-   return 0 ;
+ 
    
    // show NEW HIGHSCORE in one scroll .. 
    String str = "NEW HIGHSCORE:    ";
 //   Serial.println(totalscore);
+ 
+ 
    show_one_line(str, matrix.Color(0,0,255), 90);
    
    
@@ -506,37 +510,22 @@ int check_highscore()
    int charcount=0;
    int char_input_done=0;
    
-   // debounce  :/
-   delay(100);
+ 
    button_pressed=0;
     
    uint32_t lastinput = 0;
   
-  
+   int inputfinished=0;  
   
   
   
   
        
      
-     //blink current character blue and white
-     matrix.fillScreen(0); 
-     matrix.setCursor(2, 5);
-     matrix.setTextColor(matrix.Color(0,0,255));
-     matrix.print(currentchar);
-     matrix.show();
-     delay(200);
-     matrix.fillScreen(0); 
-     matrix.setCursor(2, 5);
-     matrix.setTextColor(matrix.Color(127,127,127));
-     matrix.print(currentchar);
-     matrix.show();
-     delay(50);    
+ 
      
      
-  
-  
-  
+
   
   
   
@@ -544,16 +533,144 @@ int check_highscore()
    {
      
      
+    // display current character
+    
+    
+           //blink current character blue and white
+     matrix.fillScreen(0); 
+     matrix.setCursor(2, 5);
+     matrix.setTextColor(matrix.Color(0,0,255));
+     matrix.print(currentchar);
+     matrix.show();
+     delay(100);
+     matrix.fillScreen(0); 
+     matrix.setCursor(2, 5);
+     matrix.setTextColor(matrix.Color(127,127,127));
+     matrix.print(currentchar);
+     matrix.show();
+     delay(50);   
      
-     // ah the button was pressed.. update the displayed char
+     
+     
+     
+     
+     
+
+     
+     
+     
+     // ah the button was pressed.. 
+     // was it pressed for long?
+    
+     
+     
+     // or..update the displayed char
      if(button_pressed>0)
      {
-       // debouce the button ... :/
-       delay(80);
-       button_pressed=0; 
+       
+       
        
        lastinput = millis();
+   //    Serial.println("pressed");
        
+          
+          
+       while(!digitalRead(BUTTON_PIN) && !inputfinished)
+       { 
+
+         // Serial.println("hier"); 
+         
+ 
+         // deep blue 
+        matrix.fillScreen(0); 
+        matrix.setCursor(2, 5);
+        matrix.setTextColor(matrix.Color(0,0,255));
+        matrix.print(currentchar);
+        matrix.show();
+
+         
+         
+         
+         // button down
+ //        Serial.println("DOWN");
+        if(millis()-lastinput > 800)
+        {
+         // button was pressd for > 1 second
+         // save the current character 
+          
+   //                Serial.println("saveloop");  
+          
+         // fadeout current character      
+         for(int i=255;i>0;i--)
+         { 
+           matrix.fillScreen(0); 
+           matrix.setCursor(2, 5);
+           matrix.setTextColor(matrix.Color(i,0,0));
+           matrix.print(currentchar);
+           matrix.show();       
+         } 
+          
+       
+         // to display something if we enter a space we use a monolith, but we rather save a space in the eeprom
+         if(currentchar == 0xFFFFFFDA)
+         {
+          currentchar= 0x20; // replace block with space
+          char_input_done=1;  //assume we are done if there is a space before the 4 chars..
+         }
+      
+      
+         // update the 4 parameters to save in eeprom later
+         if(charcount==0) a = currentchar; 
+         if(charcount==1) b = currentchar;
+         if(charcount==2) c = currentchar; 
+      
+         // last char .. we are outta here.
+         if(charcount==3)
+         { 
+          d = currentchar; 
+          char_input_done=1;
+         }
+    
+  //   Serial.print("Saving char:" );
+  //   Serial.println(currentchar);
+  
+       
+         charcount++;
+      
+      // next char will be a monolith again
+      currentchar= 0xFFFFFFDA; 
+      
+      // reset the timer for next char   
+      lastinput = 0;
+   
+   
+       // is set on save 
+      inputfinished=1;
+          
+          
+          
+          
+ 
+        } // if button down > 1.5 sec
+   
+   
+      
+
+   
+   
+       }   // while button down
+       // button was released       
+
+
+      while(inputfinished && !digitalRead(BUTTON_PIN))
+      {
+       // input finished but button still down?
+      //do nothing. 
+        delay(10); 
+      }
+
+
+       inputfinished=0;
 
               
        // increment character
@@ -563,6 +680,8 @@ int check_highscore()
       // 0xFFFFFFDA  = BLOCK
       if(currentchar >=  0xFFFFFFDA ) currentchar='A'; // 65 DEC  (90 =Z)
       if(currentchar>'Z') currentchar=0xFFFFFFDA; // set to monolith
+      
+       button_pressed=0; 
           
      }
      
@@ -572,80 +691,35 @@ int check_highscore()
      
      
 
-     
-     
-         
-     
-     
-     
-     // no timeout before first modification of character .. after first change we save it 1.5 secs later.
-     if(lastinput>0 && ((millis()-lastinput) > 1500) )
-     {
 
-       
-      // fadeout current character      
-      for(int i=255;i>0;i--)
-      { 
-       matrix.fillScreen(0); 
-       matrix.setCursor(2, 5);
-       matrix.setTextColor(matrix.Color(i,i,i));
-       matrix.print(currentchar);
-       matrix.show();       
-      }
-      
-      
-      // to display something if we enter a space we use a monolith, but we rather save a space in the eeprom
-      if(currentchar == 0xFFFFFFDA)
-      {
-        currentchar= 0x20; // replace block with space
-        char_input_done=1;  //assume we are done if there is a space before the 4 chars..
-      }
-      
-      
-      
-      // update the 4 parameters to save in eeprom later
-      if(charcount==0) a = currentchar; 
-      if(charcount==1) b = currentchar;
-      if(charcount==2) c = currentchar; 
-      
-      // last char .. we are outta here.
-      if(charcount==3)
-      { 
-       d = currentchar; 
-       char_input_done=1;
-      }
     
-  //    Serial.print("Saving char:" );
-  //    Serial.println(currentchar);
-           
-    
-    
-      
-      charcount++;
-      
-      // next char will be a monolith again
-      currentchar= 0xFFFFFFDA; 
-      
-      // reset the timer for next char   
-      lastinput = 0;
-      delay(100);
-      
-      
-     } // if lastinput longer 5 sec ..
     
     } // while input not done ..
    
     // input done? great!
+    
+    
+    Serial.println("SAVE THE SCORE");
     
     //delay(100);
     save_highscore_name (a,b,c,d);
     save_highscore (totalscore);   
  
  
+ 
+ 
+ 
+        button_pressed=0; 
+ 
    // we set a new highscore .. show it!
    return 1; 
   
 }
+
+
+
+
+
 
 
 

@@ -36,7 +36,7 @@ GPL 2.0,  thrown together by overflo from hackerspaceshop.com / metalab.at
 #define MATRIX_PIN 8
 
 // where is the BUTTON?
-// needs to be interruot enabled pin
+// needs to be interrupt enabled pin
 #define BUTTON_PIN 2
 
 
@@ -65,7 +65,7 @@ GPL 2.0,  thrown together by overflo from hackerspaceshop.com / metalab.at
 #define EASY_HARD 14
 
 
-// theforth  dip switch that can be used for custom input .. for example a mode that makes the game unbeatable or something.. ;) TODO: do something with this
+// the fourth  dip switch that can be used for custom input .. for example a mode that makes the game unbeatable or something.. ;) TODO: do something with this
 #define CUSTOM_SWITCH 15
 
 
@@ -200,7 +200,6 @@ void setup() {
     
 
   
-  
 }
 
 
@@ -313,22 +312,53 @@ int score=0;
 int rowscore=0;
 
 
+
+
+
+//normal
+const int linedelay_hardcore[] = {
+  15, 
+  16, 17, 
+  18, 19, 20, 21, 
+  22, 23, 24, 25, 
+  26,27, 28, 29, 30
+  };
+
+
+
+
+//normal
+const int linedelay_normal[] = {
+  10, 15, 25, 30, 40, 50,
+  60, 65, 70, 75, 80, 85,
+  90, 95, 100, 105
+  };
+
+
+
+
+const int *linedelay;
+
+
 void loop() {
 
-  
- // win_game();
- // return;
+  linedelay=linedelay_normal;
   
   
+  // hardcore if dipswitch set to hard
+  if(!digitalRead(EASY_HARD))  linedelay=linedelay_hardcore;
   
- /*
+
+  
+  
+  
+ 
   for(int i=0; i<=255;i++)
   {
   delay(5);
     analogWrite(LED_PIN, i);    
   } 
-    return;
-  */
+
   
   
   
@@ -389,26 +419,6 @@ int current_position=0;
 
 
 
-/*
-
-//normal
-const int linedelay[] = {
-  40, 45, 45, 45, 50, 55,
-  60, 65, 70, 75, 80, 85,
-  90, 95, 100, 105, 110, 115,
-  120
-  };
-*/
-
-
-
-//insane
-const int linedelay[] = {
-  10, 15, 25, 30, 40, 50,
-  60, 65, 70, 75, 80, 85,
-  90, 95, 100, 105
-  };
-
 
 
 
@@ -441,7 +451,7 @@ void run_game()
   while(!waitforactivation)
   {
   
-    while(!digitalRead(BUTTON_PIN)){delay(1);} // debounce bitch
+    while(!digitalRead(BUTTON_PIN)){delay(5);} // debounce bitch
     button_pressed=0;
     
     // how big is the block in this row  by default?
@@ -849,7 +859,13 @@ void win_game()
   debug("win_game() called\n");
   
   
-   if(!check_highscore()) show_score();
+  
+  
+  
+  if(!check_highscore()) show_score();
+ 
+  
+  
    show_highscore(500);
  
    finish_game();
@@ -869,11 +885,9 @@ void lose_game()
   
     debug("lose_game() called\n");
   
-  
-  // deisabled for 31c3
-  
+
    if(!check_highscore()) show_score();
- //  show_highscore(500);
+   show_highscore(500);
    
    flash(3); 
    finish_game();  
@@ -924,6 +938,9 @@ void finish_game()
 }
 
 
+
+
+// calculates the score for the pixels left in the deisplay once the game finishes..
 void set_pxl_score()
 {
    score=0;
@@ -938,15 +955,21 @@ void set_pxl_score()
 
 
 
+
+
 void  run_for_the_first_time()
 {
   
        Serial.println("run_for_the_first_time() called");
   
   
-   EEPROM.write(100,   0xFFFFFFFF); 
+  
+      //
+   //EEPROM.write(100,   0xFFFFFFFF); 
+
   
    // this function is supposed to run ONCE.
+   // when we inited the eeprom we write 1 to position 100 
    if((int) EEPROM.read(100) == 0xFF) 
    { 
      
@@ -974,6 +997,8 @@ void  run_for_the_first_time()
     matrix.setBrightness(GAME_BRIGHTNESS);
     button_pressed=0;
     
+    
+
 
 
 
