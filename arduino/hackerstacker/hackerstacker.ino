@@ -315,17 +315,10 @@ int rowscore=0;
 
 
 
-//normal
-const int linedelay_hardcore[] = {
-  15, 
-  16, 17, 
-  18, 19, 20, 21, 
-  22, 23, 24, 25, 
-  26,27, 28, 29, 30
-  };
 
 
 
+// how hard will each level be?
 
 //normal
 const int linedelay_normal[] = {
@@ -334,6 +327,17 @@ const int linedelay_normal[] = {
   90, 95, 100, 105
   };
 
+
+
+
+//hardcore
+const int linedelay_hardcore[] = {
+  15, 
+  16, 17, 
+  18, 19, 20, 21, 
+  22, 23, 24, 25, 
+  26,27, 28, 29, 30
+  };
 
 
 
@@ -451,7 +455,7 @@ void run_game()
   while(!waitforactivation)
   {
   
-    while(!digitalRead(BUTTON_PIN)){delay(5);} // debounce bitch
+    while(!digitalRead(BUTTON_PIN)){delay(5);} // debounce that bitchy button
     button_pressed=0;
     
     // how big is the block in this row  by default?
@@ -476,7 +480,19 @@ void run_game()
     //display current frame
     matrix.show();
 
-    delay(linedelay[current_row]);
+
+    // TROLLMODE
+    // if custom switch == on we make some random delay.. sometimes.. in the last 5 rows
+    if(!digitalRead(CUSTOM_SWITCH) && (random(1,20)==10) && (current_row<5))
+    {
+      delay(1);
+    }
+    else
+    {
+      delay(linedelay[current_row]);
+    }
+    
+    
     
     if(button_pressed)
     {
