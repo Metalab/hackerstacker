@@ -10,12 +10,11 @@
 //inits rom when the machine ist turned on for the first time ever ..
 int init_eeprom_on_firstrun()
 {
-  if(EEPROM.read(2) == 0xFFFFFFFF) 
-  {
-   // empty eeprom? fix it! 
     save_highscore_name('O','V','R','F');
     save_highscore(133);    
-  }
+    
+    // magic byte at p[osition 100 is set to 1 .. now we will never again do anything in the function run_for_the_first_time()
+    EEPROM.write(100, 1); 
 }
 
 
@@ -27,8 +26,8 @@ void save_highscore(int score)
 {
 
   
-  Serial.print("Called for writing with eeprom: ");
-  Serial.println(score);
+//  Serial.print("Called for writing with eeprom: ");
+//  Serial.println(score);
   
   
   byte sb1 = score;
@@ -43,27 +42,27 @@ void save_highscore(int score)
 
     
   
-  Serial.print("Writing highscore to eeprom: ");
-  Serial.println(score);
-  Serial.println("------------");
+//  Serial.print("Writing highscore to eeprom: ");
+//  Serial.println(score);
+//  Serial.println("------------");
 
-  Serial.print("Byte 1: ");
-  Serial.print(sb1);
-  Serial.print(" - ");
-  Serial.print(sb1,DEC);
-  Serial.print(" - ");
-  Serial.println(sb1,HEX);
+//  Serial.print("Byte 1: ");
+//  Serial.print(sb1);
+//  Serial.print(" - ");
+//  Serial.print(sb1,DEC);
+//  Serial.print(" - ");
+//  Serial.println(sb1,HEX);
 
-  Serial.print("Byte 2: ");
-  Serial.print(sb2);
-  Serial.print(" - ");
-  Serial.print(sb2,DEC);
-  Serial.print(" - ");
-  Serial.println(sb2,HEX);
+//  Serial.print("Byte 2: ");
+//  Serial.print(sb2);
+//  Serial.print(" - ");
+//  Serial.print(sb2,DEC);
+//  Serial.print(" - ");
+//  Serial.println(sb2,HEX);
 
-  Serial.println("------------");
+//  Serial.println("------------");
   
-  Serial.println(sb1+sb2);
+//  Serial.println(sb1+sb2);
 
 
 
@@ -104,25 +103,25 @@ int get_highscore()
 
  
  
-   Serial.print("GETTING highscore from eeprom: ");
-  Serial.println(hs);
-  Serial.println("------------");
+ // Serial.print("GETTING highscore from eeprom: ");
+ // Serial.println(hs);
+ // Serial.println("------------");
 
-  Serial.print("Byte 1: ");
-  Serial.print(sb1);
-  Serial.print(" - ");
-  Serial.print(sb1,DEC);
-  Serial.print(" - ");
-  Serial.println(sb1,HEX);
+ // Serial.print("Byte 1: ");
+ // Serial.print(sb1);
+ // Serial.print(" - ");
+ // Serial.print(sb1,DEC);
+ // Serial.print(" - ");
+ // Serial.println(sb1,HEX);
 
-  Serial.print("Byte 2: ");
-  Serial.print(sb2);
-  Serial.print(" - ");
-  Serial.print(sb2,DEC);
-  Serial.print(" - ");
-  Serial.println(sb2,HEX);
+//  Serial.print("Byte 2: ");
+//  Serial.print(sb2);
+//  Serial.print(" - ");
+//  Serial.print(sb2,DEC);
+//  Serial.print(" - ");
+//  Serial.println(sb2,HEX);
 
-  Serial.println("------------");
+//  Serial.println("------------");
 
  
  
@@ -157,14 +156,14 @@ String get_highscore_name()
   if(c4==0xFFFFFFFF) c4 =' ';   
   
      
-  Serial.print("EEPROM READS:");
-  Serial.print(c1,HEX);  
-  Serial.print(" ");       
-  Serial.print(c2,HEX);  
-  Serial.print(" ");  
-  Serial.print(c3,HEX);  
-  Serial.print(" ");  
-  Serial.println(c4,HEX);    
+  //Serial.print("EEPROM READS:");
+  //Serial.print(c1,HEX);  
+  //Serial.print(" ");       
+  //Serial.print(c2,HEX);  
+  //Serial.print(" ");  
+  //Serial.print(c3,HEX);  
+  //Serial.print(" ");  
+  //Serial.println(c4,HEX);    
      
      
   highscore_name = String(c1) + String(c2) + String(c3) + String(c4);   

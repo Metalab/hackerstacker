@@ -25,6 +25,14 @@
     
     tone(BUZZERPIN,random(lsound,hsound),on);       
     matrix.fillScreen(matrix.Color(255,0,0));
+    
+    
+      
+    if(!digitalRead(LED_ENABLE)) for(int i=0;i<BORDER_PIXELCOUNT;i++){border.setPixelColor(i, matrix.Color(0,255,0)); }; border.show(); 
+   
+  
+    
+    
     delay(on);
 
     tone(BUZZERPIN,random(lsound,hsound),off); 
@@ -35,6 +43,11 @@
     
     tone(BUZZERPIN,random(lsound,hsound),on); 
     matrix.fillScreen(matrix.Color(0,255,0));
+    
+    
+    if(!digitalRead(LED_ENABLE)) for(int i=0;i<BORDER_PIXELCOUNT;i++){border.setPixelColor(i, matrix.Color(255,0,0)); }; border.show(); 
+   
+    
     delay(on);
     tone(BUZZERPIN,random(lsound,hsound),off); 
     matrix.show();
@@ -45,6 +58,10 @@
 
     tone(BUZZERPIN,random(lsound,hsound),on); 
     matrix.fillScreen(matrix.Color(0,0,255));
+    
+    if(!digitalRead(LED_ENABLE)) for(int i=0;i<BORDER_PIXELCOUNT;i++){border.setPixelColor(i, matrix.Color(0,0,255)); }; border.show(); 
+    
+    
     delay(on);
      tone(BUZZERPIN,random(lsound,hsound),off);    
     matrix.show();
@@ -54,6 +71,13 @@
       
     tone(BUZZERPIN,random(lsound,hsound),on);     
     matrix.fillScreen(matrix.Color(255,255,255));
+    
+    
+    
+    if(!digitalRead(LED_ENABLE))  for(int i=0;i<BORDER_PIXELCOUNT;i++){border.setPixelColor(i, matrix.Color(255,255,255)); }; border.show(); 
+    
+    
+    
     delay(on);
     tone(BUZZERPIN,random(lsound,hsound),off);     
     matrix.show();
@@ -191,9 +215,17 @@ void   show_startup_animation()
   while(!button_pressed)
   {
 
+    
+   for(int i=0;i<BORDER_PIXELCOUNT;i++){
+    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
+    border.setPixelColor(i, border.Color(brightness,0,0)); // Moderately bright green color.
+
+  } 
+  if(!digitalRead(LED_ENABLE))  border.show(); // This sends the updated pixel color to the hardware.
+    
 
   // FADE led on button
-  analogWrite(LED_PIN, brightness);    
+  if(!digitalRead(LED_ENABLE)) analogWrite(LED_PIN, brightness);    
 
   // change the brightness for next time through the loop:
   brightness = brightness + fadeAmount;
@@ -221,7 +253,7 @@ void   show_startup_animation()
   
   if(counter >=5)
   {
-   flash(1);
+   //flash(1);
    show_highscore(53);
    counter=0;
   }  
@@ -390,6 +422,10 @@ void show_highscore(int timer)
 void show_one_line(String str, uint16_t color, int timeout)
 {
   
+  
+
+  
+  
 
    int strlen =  str.length();  
   
@@ -447,9 +483,12 @@ int check_highscore()
    
    
    
+   //TODO needs to be removed
+   return 0 ;
+   
    // show NEW HIGHSCORE in one scroll .. 
    String str = "NEW HIGHSCORE:    ";
-   Serial.println(totalscore);
+//   Serial.println(totalscore);
    show_one_line(str, matrix.Color(0,0,255), 90);
    
    
@@ -472,10 +511,13 @@ int check_highscore()
    button_pressed=0;
     
    uint32_t lastinput = 0;
-   
-   while(!char_input_done)
-   {
-     
+  
+  
+  
+  
+  
+  
+       
      
      //blink current character blue and white
      matrix.fillScreen(0); 
@@ -492,15 +534,28 @@ int check_highscore()
      delay(50);    
      
      
+  
+  
+  
+  
+  
+  
+   while(!char_input_done)
+   {
      
      
-     // ah the button was presse.. update the displayed char
+     
+     // ah the button was pressed.. update the displayed char
      if(button_pressed>0)
      {
-       // debaouce the button ... :/
+       // debouce the button ... :/
        delay(80);
        button_pressed=0; 
        
+       lastinput = millis();
+       
+
+              
        // increment character
        currentchar++;
        
@@ -508,14 +563,18 @@ int check_highscore()
       // 0xFFFFFFDA  = BLOCK
       if(currentchar >=  0xFFFFFFDA ) currentchar='A'; // 65 DEC  (90 =Z)
       if(currentchar>'Z') currentchar=0xFFFFFFDA; // set to monolith
-       
-       Serial.print(currentchar);
-       Serial.print(" ");
-       Serial.println(currentchar,HEX); 
-     
-       lastinput = millis();
-        
+          
      }
+     
+     
+     
+     
+     
+     
+
+     
+     
+         
      
      
      
@@ -556,15 +615,15 @@ int check_highscore()
        char_input_done=1;
       }
     
-      Serial.print("Saving char:" );
-      Serial.println(currentchar);
+  //    Serial.print("Saving char:" );
+  //    Serial.println(currentchar);
            
     
     
       
       charcount++;
       
-      // next char will be A again
+      // next char will be a monolith again
       currentchar= 0xFFFFFFDA; 
       
       // reset the timer for next char   
