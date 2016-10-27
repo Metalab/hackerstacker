@@ -407,6 +407,8 @@ void show_highscore(int timer)
     scorestring = get_highscore_name() + ":" + get_highscore() ; 
     show_one_line(scorestring,matrix.Color(255,255,0),timer); 
   
+    matrix.fillScreen(0); 
+    matrix.show();
   
 }
 
@@ -440,7 +442,7 @@ void show_one_line(String str, uint16_t color, int timeout)
     if(button_pressed) 
     {
       if((millis()-starttime)>200)
-         break;
+         return;
     }
     button_pressed=0; 
   
@@ -482,7 +484,10 @@ int check_highscore()
    int totalscore = (score+rowscore);
    
    // if we got no new highscore we return in shame :(
-   if(get_highscore() >  totalscore) return 0;
+   
+   
+
+      if(get_highscore() >  totalscore) return 0;
    
    
    
@@ -492,8 +497,7 @@ int check_highscore()
    String str = "NEW HIGHSCORE:    ";
 //   Serial.println(totalscore);
  
- 
-   show_one_line(str, matrix.Color(0,0,255), 90);
+ show_one_line(str, matrix.Color(0,0,255), 90);
    
    
    
@@ -593,7 +597,7 @@ int check_highscore()
          
          // button down
  //        Serial.println("DOWN");
-        if(millis()-lastinput > 800)
+        if(millis()-lastinput > 500)
         {
          // button was pressd for > 1 second
          // save the current character 

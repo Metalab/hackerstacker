@@ -31,6 +31,7 @@ GPL 2.0,  thrown together by overflo from hackerspaceshop.com / metalab.at
 #define DEBUG 1
 
 
+//these pin definitions are valid for arduino pro MICRO (the one with USB
 
 // where is the matrix?
 #define MATRIX_PIN 8
@@ -39,42 +40,47 @@ GPL 2.0,  thrown together by overflo from hackerspaceshop.com / metalab.at
 // needs to be interrupt enabled pin
 #define BUTTON_PIN 2
 
-
 // the led on the button
 // we will dim this with PWM
-#define LED_PIN 3
-
+#define LED_PIN 10
 
 // the buzzer, we will drive this with PWM tone() function
 #define BUZZERPIN 16
 
-
-
 // how blinding should it be? (1-255)
 #define GAME_BRIGHTNESS 40
-
-
-
-
 
 // the second dip switch that controls wether the border  and the button should be iluminated or not
 #define LED_ENABLE 10
 
-
 // the third dip switch that controls if the game should be easy or hard TODO: implement this.
 #define EASY_HARD 14
 
-
-// the fourth  dip switch that can be used for custom input .. for example a mode that makes the game unbeatable or something.. ;) TODO: do something with this
+// the fourth  dip switch that can be used for custom input .. for example a mode that makes the game unbeatable or something.. 
 #define CUSTOM_SWITCH 15
+
+// on board led
+#define ONBOARD_LED 17
+
+// the ledstrip for the border wall enligthtment
+#define BORDER_PIN 9
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 // OPTIONAL 
 
-// the ledstrip for the border wall enligthtment
-#define BORDER_PIN 9
+
 // how many light are there?
 #define BORDER_PIXELCOUNT 56
 
@@ -160,10 +166,10 @@ int fadeAmount = 5;    // how many points to fade the LED by
 void setup() {
 
   
-  delay(1000);
+  //delay(1000);
  
 
-
+  Serial.begin(9600);
 
   // background illumination (optional)
   border.begin(); // This initializes the NeoPixel library.
@@ -178,8 +184,11 @@ void setup() {
   
   
   pinMode(LED_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);    
   pinMode(BUZZERPIN,OUTPUT);
+
+
+  pinMode(BUTTON_PIN, INPUT_PULLUP);    
+
 
 // dip switched
 
@@ -194,13 +203,27 @@ void setup() {
   attachInterrupt(1,buttonpressed_LOW_isr,FALLING);
   
   
-  
-  
   run_for_the_first_time();
-    
+  
 
+
+    
+  
   
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -250,7 +273,7 @@ int m2=220;
 const uint32_t linecolors[] = {
   matrix.Color(255,0,255),  //0
   
-  matrix.Color(220, 0, 255),   //1
+  matrix.Color(m2, 0, 255),   //1
   matrix.Color(m1, 0, 255),  //2
   matrix.Color(0,0,255),   //3
   
@@ -274,12 +297,6 @@ const uint32_t linecolors[] = {
 
 
 
-
-
-
-
-
-
 const uint32_t bordercolors[] = {
   border.Color(0,255,255),  //0
   
@@ -287,8 +304,8 @@ const uint32_t bordercolors[] = {
   border.Color(0, 120, 255),  //2
   border.Color(0,0,255),    //3
   
-  border.Color(120, 0, 255),   //ok 4
-  border.Color(180,0,255),    // ok 5
+  border.Color(160, 0, 255),   //ok 4
+  border.Color(220,0,255),    // ok 5
   border.Color(255, 0, 255),    // ok 6
  
   border.Color(255, 0,180), //ok 7
@@ -346,6 +363,10 @@ const int *linedelay;
 
 void loop() {
 
+  
+
+  
+  
   linedelay=linedelay_normal;
   
   
@@ -483,14 +504,14 @@ void run_game()
 
     // TROLLMODE
     // if custom switch == on we make some random delay.. sometimes.. in the last 5 rows
-    if(!digitalRead(CUSTOM_SWITCH) && (random(1,20)==10) && (current_row<5))
-    {
-      delay(1);
-    }
-    else
-    {
+//    if(!digitalRead(CUSTOM_SWITCH) && (random(1,20)==10) && (current_row<5))
+//    {
+//      delay(1);
+//    }
+//    else
+//    {
       delay(linedelay[current_row]);
-    }
+//    }
     
     
     
@@ -554,10 +575,7 @@ void run_game()
       last_row_setpixels[j]  = current_row_setpixels[j];        
    }
    
-//   .print("---- ROW ");  
-//   .println(current_row);
-   
-   
+
   
    
    
@@ -573,13 +591,8 @@ void run_game()
        
        if(current_row_setpixels[i] == last_row_setpixels[j]  &&  (current_row_setpixels[i] != -1)) 
        { 
-//        .print("Pixel ");/
-//        .print(current_row_setpixels[i]);
-//        .println(" is in row! :)");
+
         ok=1;
-        
-        //incrment score - no! count pixels in the end
-        score++;
         
        }
 
@@ -590,9 +603,7 @@ void run_game()
     if(!ok &&  (current_row_setpixels[i] != -1))
     {
 
-//      .print("Pixel ");
-//      .print(current_row_setpixels[i]);
-//      .println(" DIES!");     
+
 
       
       kill_pixel(current_row,current_row_setpixels[i]);
@@ -741,6 +752,9 @@ void draw_blockline(int row)
     for(int i=0;i<BORDER_PIXELCOUNT;i++){
 
     border.setPixelColor(i, bordercolors[row]); // Moderately bright green color.
+  
+
+
 
   } 
 if(!digitalRead(LED_ENABLE))   border.show(); // This sends the updated pixel color to the hardware.
@@ -904,9 +918,9 @@ void lose_game()
 
    if(!check_highscore()) show_score();
    show_highscore(500);
-   
-   flash(3); 
    finish_game();  
+   flash(3); 
+   
 }
 
 
@@ -974,49 +988,101 @@ void set_pxl_score()
 
 
 void  run_for_the_first_time()
-{
+{ 
+ Serial.println("run_for_the_first_time() called");
   
-       Serial.println("run_for_the_first_time() called");
-  
-  
-  
-      //
-   //EEPROM.write(100,   0xFFFFFFFF); 
+ 
+ // this function is supposed to run ONCE.
+ // when we inited the eeprom we write 1 to position 100 
+ if((int) EEPROM.read(100) != 1) 
+ { 
+   
+  pinMode(ONBOARD_LED,OUTPUT); 
 
-  
-   // this function is supposed to run ONCE.
-   // when we inited the eeprom we write 1 to position 100 
-   if((int) EEPROM.read(100) == 0xFF) 
-   { 
+  for(int i=0;i<5;i++)
+  {  
+   digitalWrite(ONBOARD_LED,LOW);
+   digitalWrite(LED_PIN,LOW); 
+   delay(100);
+   digitalWrite(ONBOARD_LED,HIGH);
+   digitalWrite(LED_PIN,HIGH); 
+   delay(100); 
+  }
+
+  // make some noise 
+  tone(BUZZERPIN,500,500); 
+  delay(500); 
+  tone(BUZZERPIN,600,500); 
+  delay(500);   
+ 
+ 
+
+   
+   // for setup purposed we dont want this to be blinding
+   matrix.setBrightness(10);
      
-     // for setup purposed we dont want this to be blinding
-     matrix.setBrightness(10);
-     while(button_pressed ==0)
-     {
-       for (int i=0;i<16;i++)
-       {
-        for (int j=0;j<8;j++)
-        {
-          matrix.drawPixel(j, i, matrix.Color(255,255,255));
-        }
-       matrix.show();
-       delay(1);
-       matrix.fillScreen(0);
-      }
+     
+   for (int i=0;i<16;i++)
+   {
+    for (int j=0;j<8;j++)
+    {
+     matrix.drawPixel(j, i, matrix.Color(255,255,255));
+    }  
+   } 
+    matrix.show();  
+     
+     
+     
+     
+      border.setBrightness(10);  
       
-     } // while button not pressed     
-     
-    // buton pressed, flash the eeprom
-    init_eeprom_on_firstrun();    
-    } // if eeprom empty
+ for(int i=0;i<BORDER_PIXELCOUNT;i++){
+
+    border.setPixelColor(i, border.Color(255,255,255)); // Moderately bright green color.
+
+  } 
+      
+   border.show();  
+      
+       
+
+
+     uint32_t go=0;  
+     int setup_finished=0;
+    
+     while(!setup_finished){
+       
+       
+      go=millis(); 
+       
+      // on button longpress finish setup
+      while(!digitalRead(BUTTON_PIN))
+      {
+       if(millis()-go >2000)
+       {
+         // buton pressed, flash the eeprom
+         init_eeprom_on_firstrun();    
+         matrix.fillScreen(0);
+              
+         matrix.setBrightness(GAME_BRIGHTNESS);
+         button_pressed=0;
+         setup_finished=1;
+        
+        
+        return; 
+         
+         
+       }
+      }
   
-    matrix.setBrightness(GAME_BRIGHTNESS);
-    button_pressed=0;
-    
-    
+  
+     }
+
+  
 
 
-
+   } // if eeprom empty
+ 
 
 }
 
